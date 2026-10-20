@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+
+# PyInstaller / Build artifacts
+build/
+dist/
+*.spec
+GPS_Stamp_Date_Changer_Pro_Windows_Portable/
+*.zip
+
+# Runtime storage & temp data
+uploads/
+jobs/
+*.tmp
+*.bak
+
+# Temporary test images
+test_*.jpg
+test_*.png
+test_*.xlsx
+
+# Environment & IDE
+.env
+.venv
+venv/
+ENV/
+.idea/
+.vscode/
+*.swp

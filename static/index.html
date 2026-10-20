@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS Stamp Date Changer Pro - Enterprise Field Photo Date Suite</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #020617;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .glow-card {
+      box-shadow: 0 0 25px rgba(14, 165, 233, 0.12);
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col font-sans antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+          <i data-lucide="calendar-clock" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+            GPS Stamp Date Changer Pro
+          </h1>
+          <p class="text-xs text-slate-400">High-Fidelity Field Survey GPS Overlay Date Batch Processor</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button onclick="openInExternalBrowser()" title="Open in default Google Chrome or Edge browser" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer">
+          <i data-lucide="globe" class="w-4 h-4 text-sky-400"></i> Open in Browser
+        </button>
+        <a href="/api/sample-files/sample_field_survey.xlsx" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+          <i data-lucide="file-down" class="w-4 h-4 text-emerald-400"></i> Sample Excel
+        </a>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          Engine Online
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- KPI Summary Dashboard Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+          <i data-lucide="images" class="w-3.5 h-3.5 text-slate-500"></i> Total Images
+        </span>
+        <span id="kpi-total" class="text-2xl font-bold text-white mt-2">0</span>
+      </div>
+      <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-xs font-medium text-sky-400 flex items-center gap-1.5">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-sky-500"></i> Ready
+        </span>
+        <span id="kpi-ready" class="text-2xl font-bold text-sky-400 mt-2">0</span>
+      </div>
+      <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-xs font-medium text-amber-400 flex items-center gap-1.5">
+          <i data-lucide="loader" class="w-3.5 h-3.5 text-amber-500 animate-spin"></i> Processing
+        </span>
+        <span id="kpi-processing" class="text-2xl font-bold text-amber-400 mt-2">0</span>
+      </div>
+      <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-xs font-medium text-emerald-400 flex items-center gap-1.5">
+          <i data-lucide="badge-check" class="w-3.5 h-3.5 text-emerald-500"></i> Completed
+        </span>
+        <span id="kpi-completed" class="text-2xl font-bold text-emerald-400 mt-2">0</span>
+      </div>
+      <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-xs font-medium text-rose-400 flex items-center gap-1.5">
+          <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-500"></i> Failed
+        </span>
+        <span id="kpi-failed" class="text-2xl font-bold text-rose-400 mt-2">0</span>
+      </div>
+      <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+          <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-500"></i> Remaining
+        </span>
+        <span id="kpi-remaining" class="text-2xl font-bold text-slate-300 mt-2">0</span>
+      </div>
+    </div>
+
+    <!-- STEP 1: Upload Spreadsheet Section -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur glow-card space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold text-sky-400 uppercase tracking-wider">Step 1</span>
+          <h2 class="text-xl font-bold text-white">Upload Field Survey Spreadsheet</h2>
+        </div>
+        <span class="text-xs text-slate-400">Supports .xlsx, .xls, .csv</span>
+      </div>
+
+      <!-- Dropzone -->
+      <div id="dropzone" class="border-2 border-dashed border-slate-700 hover:border-sky-500 rounded-2xl p-8 text-center transition cursor-pointer bg-slate-950/40">
+        <input type="file" id="file-input" class="hidden" accept=".xlsx,.xls,.csv">
+        <div class="flex flex-col items-center justify-center space-y-3">
+          <div class="w-12 h-12 rounded-full bg-sky-500/10 flex items-center justify-center text-sky-400">
+            <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-white">Click or drag & drop survey spreadsheet here</p>
+            <p class="text-xs text-slate-400 mt-1">Accepts Excel spreadsheets or CSV files containing photo links or Google Drive URLs</p>
+          </div>
+          <button type="button" id="btn-load-demo" onclick="event.stopPropagation(); loadDemoSurvey();" class="mt-1 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 transition shadow-lg shadow-indigo-500/10">
+            <i data-lucide="play-circle" class="w-3.5 h-3.5 text-indigo-400"></i> Try Demo Survey Spreadsheet (5 Field Photos)
+          </button>
+        </div>
+      </div>
+
+      <!-- Upload Results & Column Selectors (Hidden initially) -->
+      <div id="dataset-config" class="hidden space-y-6 pt-2">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Image URL Column <span class="text-rose-400">*</span></label>
+            <select id="col-url" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Image ID Column (Optional)</label>
+            <select id="col-id" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Custom Target Date Column (Optional)</label>
+            <select id="col-date" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"></select>
+          </div>
+        </div>
+
+        <!-- Validation Summary Banner -->
+        <div id="validation-banner" class="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs">
+          <div class="flex items-center gap-4">
+            <span class="text-slate-400"><strong id="val-filename" class="text-white">survey.xlsx</strong> (<span id="val-rows">0</span> rows)</span>
+            <span class="text-emerald-400 flex items-center gap-1"><i data-lucide="check" class="w-3.5 h-3.5"></i> <span id="val-valid">0</span> Valid</span>
+            <span class="text-amber-400 flex items-center gap-1"><i data-lucide="copy" class="w-3.5 h-3.5"></i> <span id="val-duplicates">0</span> Duplicates</span>
+            <span class="text-rose-400 flex items-center gap-1"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> <span id="val-invalid">0</span> Invalid / Unreachable</span>
+          </div>
+          <button id="btn-revalidate" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition">
+            Apply Column Changes
+          </button>
+        </div>
+
+        <!-- Imported Preview Table -->
+        <div class="border border-slate-800 rounded-xl overflow-hidden">
+          <div class="overflow-x-auto max-h-56 custom-scrollbar">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider sticky top-0 border-b border-slate-800">
+                <tr>
+                  <th class="px-4 py-2.5">Row</th>
+                  <th class="px-4 py-2.5">Image ID</th>
+                  <th class="px-4 py-2.5">URL / Link</th>
+                  <th class="px-4 py-2.5">Status</th>
+                  <th class="px-4 py-2.5">Action</th>
+                </tr>
+              </thead>
+              <tbody id="preview-tbody" class="divide-y divide-slate-800/60 bg-slate-900/40"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2: Select Date Range & Assignment Configuration -->
+    <section id="step-date-config" class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur glow-card space-y-6">
+      <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-4 gap-4">
+        <div>
+          <span class="text-xs font-bold text-sky-400 uppercase tracking-wider">Step 2</span>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="calendar" class="w-5 h-5 text-sky-400"></i> Select Date Range & Assignment Rule
+          </h2>
+        </div>
+        <!-- Live Selected Range Pill -->
+        <div id="live-range-pill" class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-xs">
+          <span class="text-slate-400">Selected Range:</span>
+          <span id="pill-from-text" class="font-bold text-white">24/09/2026</span>
+          <span class="text-sky-400 font-bold">&rarr;</span>
+          <span id="pill-to-text" class="font-bold text-white">14/10/2026</span>
+          <span id="pill-days-count" class="ml-1.5 px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-bold text-[11px]">21 Days</span>
+        </div>
+      </div>
+
+      <!-- Quick Preset Buttons -->
+      <div class="space-y-2">
+        <label class="block text-xs font-medium text-slate-400">⚡ Quick Date Range Presets:</label>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="applyDatePreset('spec_demo')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 transition flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-sky-400"></i> 24/09/2026 &rarr; 14/10/2026 (Demo Spec)
+          </button>
+          <button type="button" onclick="applyDatePreset('last7')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+            Last 7 Days
+          </button>
+          <button type="button" onclick="applyDatePreset('last14')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+            Last 14 Days
+          </button>
+          <button type="button" onclick="applyDatePreset('this_month')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+            This Month
+          </button>
+          <button type="button" onclick="applyDatePreset('today')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+            Today Only
+          </button>
+        </div>
+      </div>
+
+      <!-- Core Date Selectors Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-bold text-slate-200">From Date (DD/MM/YYYY) <span class="text-rose-400">*</span></label>
+            <span id="label-from-day" class="text-[11px] font-semibold text-sky-400">Thursday</span>
+          </div>
+          <input type="date" id="input-from-date" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500 font-mono">
+        </div>
+
+        <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-bold text-slate-200">To Date (DD/MM/YYYY) <span class="text-rose-400">*</span></label>
+            <span id="label-to-day" class="text-[11px] font-semibold text-sky-400">Wednesday</span>
+          </div>
+          <input type="date" id="input-to-date" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500 font-mono">
+        </div>
+
+        <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
+          <label class="block text-xs font-bold text-slate-200 mb-1.5">Date Assignment Mode <span class="text-rose-400">*</span></label>
+          <select id="select-mode" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
+            <option value="sequential">Mode A: Sequential Dates</option>
+            <option value="even_distribution">Mode B: Even Distribution</option>
+            <option value="custom">Mode C: Custom Dates (From File)</option>
+            <option value="preserve">Mode D: Preserve Existing Dates</option>
+          </select>
+        </div>
+
+        <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
+          <label class="block text-xs font-bold text-slate-200 mb-1.5">Overflow Rule (Images > Dates)</label>
+          <select id="select-overflow" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
+            <option value="cycle">Cycle / Repeat Range</option>
+            <option value="distribute">Distribute Across Dates</option>
+            <option value="stop">Stop Assigning Dates</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Options Row -->
+      <div class="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-slate-950/70 border border-slate-800 text-xs">
+        <div class="flex flex-wrap items-center gap-6">
+          <label class="inline-flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="chk-preserve-time" checked class="rounded border-slate-700 bg-slate-900 text-sky-500 focus:ring-0">
+            <span>Preserve original timestamp (HH:MM AM/PM & GMT zone)</span>
+          </label>
+          <label class="inline-flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="chk-deep-clean" class="rounded border-slate-700 bg-slate-900 text-sky-500 focus:ring-0">
+            <span>Deep background inpainting clean</span>
+          </label>
+        </div>
+        <button id="btn-preview-dates" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-xs transition flex items-center gap-2 shadow-lg shadow-sky-500/20">
+          <i data-lucide="eye" class="w-4 h-4"></i> Preview Date Sequence & Stats
+        </button>
+      </div>
+
+      <!-- Live Date Sequence Preview Box -->
+      <div id="date-preview-box" class="hidden space-y-4 pt-2">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+            <span class="text-slate-400">Total Calendar Days:</span>
+            <p id="stat-days" class="text-base font-bold text-white mt-0.5">0</p>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+            <span class="text-slate-400">Unique Dates Assigned:</span>
+            <p id="stat-unique" class="text-base font-bold text-sky-400 mt-0.5">0</p>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+            <span class="text-slate-400">Avg Images Per Day:</span>
+            <p id="stat-avg" class="text-base font-bold text-emerald-400 mt-0.5">0</p>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+            <span class="text-slate-400">Min - Max Images:</span>
+            <p id="stat-minmax" class="text-base font-bold text-amber-400 mt-0.5">0 - 0</p>
+          </div>
+        </div>
+
+        <div class="border border-slate-800 rounded-xl overflow-hidden">
+          <div class="overflow-x-auto max-h-48 custom-scrollbar">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider sticky top-0 border-b border-slate-800">
+                <tr>
+                  <th class="px-4 py-2">Row #</th>
+                  <th class="px-4 py-2">Image ID</th>
+                  <th class="px-4 py-2">Assigned Date</th>
+                  <th class="px-4 py-2">Calculated Weekday</th>
+                  <th class="px-4 py-2">Rule Mode</th>
+                </tr>
+              </thead>
+              <tbody id="seq-tbody" class="divide-y divide-slate-800/60 bg-slate-900/40"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3: Single Image Stamp Quality Inspection (Side-by-Side Modal / Section) -->
+    <section id="step-sample-preview" class="hidden bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur glow-card space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold text-sky-400 uppercase tracking-wider">Step 3</span>
+          <h2 class="text-xl font-bold text-white">Visual Stamp Preservation Verification</h2>
+        </div>
+        <span class="text-xs text-slate-400">Side-by-side pixel inspection</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Original Photo -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-300">Original Photo & Overlay</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">Unchanged Source</span>
+          </div>
+          <div class="relative aspect-[4/3] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
+            <img id="preview-img-raw" src="" alt="Original Photo" class="w-full h-full object-contain">
+          </div>
+        </div>
+
+        <!-- Updated Photo -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-emerald-400">Updated GPS Stamp</span>
+            <span id="preview-stamp-badge" class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Updated</span>
+          </div>
+          <div class="relative aspect-[4/3] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
+            <img id="preview-img-edited" src="" alt="Updated Stamp" class="w-full h-full object-contain">
+          </div>
+        </div>
+      </div>
+
+      <!-- Stamp Verification Card -->
+      <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="font-semibold text-white" id="sample-verify-msg">Stamp detected and verified.</p>
+          <p class="text-slate-400 text-[11px] mt-0.5">Scene, coordinates, address, and map preview preserved. Only weekday and date modified.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <button id="btn-download-sample" type="button" onclick="downloadCurrentSample()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition flex items-center gap-2 cursor-pointer shadow">
+            <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i> Download Updated Sample Photo
+          </button>
+          <button id="btn-proceed-to-batch" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-sky-500/20 transition flex items-center gap-2 cursor-pointer">
+            <i data-lucide="play" class="w-4 h-4"></i> Start Full Batch Processing
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4: Live Batch Processing & Real-Time Controls -->
+    <section id="step-processing" class="hidden bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur glow-card space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold text-sky-400 uppercase tracking-wider">Step 4</span>
+          <h2 class="text-xl font-bold text-white">Live Batch Processing</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-pause-job" class="px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-medium transition flex items-center gap-1.5">
+            <i data-lucide="pause" class="w-3.5 h-3.5"></i> Pause
+          </button>
+          <button id="btn-resume-job" class="hidden px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-medium transition flex items-center gap-1.5">
+            <i data-lucide="play" class="w-3.5 h-3.5"></i> Resume
+          </button>
+          <button id="btn-cancel-job" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-medium transition flex items-center gap-1.5">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i> Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Progress Bar -->
+      <div class="space-y-2">
+        <div class="flex justify-between text-xs">
+          <span class="text-slate-400">Processing Progress (<span id="batch-current-num">0</span> / <span id="batch-total-num">0</span>)</span>
+          <span id="batch-pct" class="font-bold text-sky-400">0%</span>
+        </div>
+        <div class="w-full bg-slate-950 rounded-full h-3 overflow-hidden border border-slate-800 p-0.5">
+          <div id="batch-progress-bar" class="bg-gradient-to-r from-sky-500 to-indigo-500 h-full rounded-full transition-all duration-300 w-0"></div>
+        </div>
+        <div class="flex justify-between text-[11px] text-slate-500">
+          <span>Current file: <code id="batch-current-file" class="text-slate-400">Starting...</code></span>
+          <span>Elapsed: <span id="batch-elapsed">0s</span> | ETA: <span id="batch-eta">Calculating...</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 5: Results, Downloads & Reports -->
+    <section id="step-results" class="hidden bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur glow-card space-y-6">
+      <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-4 gap-4">
+        <div>
+          <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Step 5</span>
+          <h2 class="text-xl font-bold text-white">Batch Results & Audit Exports</h2>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btn-open-folder" type="button" onclick="openOutputFolder()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer" title="Open the results folder directly in Windows Explorer">
+            <i data-lucide="folder-open" class="w-3.5 h-3.5 text-amber-400"></i> Open Output Folder
+          </button>
+          <button id="btn-retry-failed" class="px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold transition flex items-center gap-1.5">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Retry Failed
+          </button>
+          <button id="btn-dl-excel" type="button" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-400"></i> Audit Excel (.xlsx)
+          </button>
+          <button id="btn-dl-csv" type="button" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-sky-400"></i> Audit CSV
+          </button>
+          <button id="btn-dl-zip" type="button" class="px-4 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-sky-600/20 cursor-pointer">
+            <i data-lucide="archive" class="w-3.5 h-3.5"></i> Download Photos ZIP
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Data Table -->
+      <div class="border border-slate-800 rounded-xl overflow-hidden">
+        <div class="overflow-x-auto max-h-96 custom-scrollbar">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider sticky top-0 border-b border-slate-800">
+              <tr>
+                <th class="px-4 py-2.5">Row</th>
+                <th class="px-4 py-2.5">Image ID</th>
+                <th class="px-4 py-2.5">Assigned Date & Day</th>
+                <th class="px-4 py-2.5">Original Time</th>
+                <th class="px-4 py-2.5">Status</th>
+                <th class="px-4 py-2.5">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="results-tbody" class="divide-y divide-slate-800/60 bg-slate-900/40"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Side-by-Side Zoom Inspection Modal -->
+  <div id="modal-inspect" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 id="modal-inspect-title" class="text-base font-bold text-white">Inspect Image & GPS Stamp Overlay</h3>
+        <button onclick="closeInspectModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <span class="text-xs font-semibold text-slate-400 block mb-1">Original Photo</span>
+          <div class="border border-slate-800 rounded-xl bg-slate-950 overflow-hidden aspect-[4/3]">
+            <img id="modal-img-raw" src="" class="w-full h-full object-contain">
+          </div>
+        </div>
+        <div>
+          <span class="text-xs font-semibold text-emerald-400 block mb-1">Updated Photo</span>
+          <div class="border border-slate-800 rounded-xl bg-slate-950 overflow-hidden aspect-[4/3]">
+            <img id="modal-img-edited" src="" class="w-full h-full object-contain">
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 bg-slate-950 rounded-xl text-xs space-y-1">
+        <p><strong class="text-white">Assigned Date:</strong> <span id="modal-inspect-date" class="text-sky-400"></span></p>
+        <p><strong class="text-white">Preserved Timestamp:</strong> <span id="modal-inspect-time" class="text-slate-300"></span></p>
+        <p><strong class="text-white">Status:</strong> <span id="modal-inspect-status"></span></p>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeInspectModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">Close</button>
+        <button id="modal-btn-download" type="button" onclick="downloadModalPhoto()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+          <i data-lucide="download" class="w-4 h-4"></i> Download Photo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Review & Stamp Adjustment Modal -->
+  <div id="modal-manual-edit" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white">Manual Stamp Review & Correction</h3>
+        <button onclick="closeManualEditModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <input type="hidden" id="edit-row-id">
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">Target Date (DD/MM/YYYY)</label>
+          <input type="text" id="edit-target-date" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">Time (e.g. 03:40 PM)</label>
+          <input type="text" id="edit-target-time" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">Timezone (e.g. GMT +05:30)</label>
+          <input type="text" id="edit-target-tz" value="GMT +05:30" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">Overlay Layout Format</label>
+          <select id="edit-layout-override" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
+            <option value="auto">Auto-Detect</option>
+            <option value="day_single_line">Day Format (e.g. Thursday, 24/09/2026 03:40 PM GMT +05:30)</option>
+            <option value="single_line">Standard Single Line (Date & Time GMT)</option>
+            <option value="split_gmt">Split GMT</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+        <button onclick="closeManualEditModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">Cancel</button>
+        <button id="btn-save-manual-edit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1.5">
+          <i data-lucide="check" class="w-4 h-4"></i> Apply & Re-process
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="border-t border-slate-800/60 bg-slate-950 py-6 mt-12 text-center text-xs text-slate-500">
+    GPS Stamp Date Changer Pro &bull; Production-Ready Field Survey Image Processing Suite
+  </footer>
+
+  <!-- Application Logic JavaScript -->
+  <script>
+    // State variables
+    let currentUploadId = null;
+    let currentJobId = null;
+    let activePollInterval = null;
+    let datasetItems = [];
+
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // DOM Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+    const datasetConfig = document.getElementById('dataset-config');
+    const colUrl = document.getElementById('col-url');
+    const colId = document.getElementById('col-id');
+    const colDate = document.getElementById('col-date');
+    const btnRevalidate = document.getElementById('btn-revalidate');
+
+    const stepDateConfig = document.getElementById('step-date-config');
+    const inputFromDate = document.getElementById('input-from-date');
+    const inputToDate = document.getElementById('input-to-date');
+    const selectMode = document.getElementById('select-mode');
+    const selectOverflow = document.getElementById('select-overflow');
+    const btnPreviewDates = document.getElementById('btn-preview-dates');
+    const datePreviewBox = document.getElementById('date-preview-box');
+
+    const stepSamplePreview = document.getElementById('step-sample-preview');
+    const btnProceedToBatch = document.getElementById('btn-proceed-to-batch');
+
+    const stepProcessing = document.getElementById('step-processing');
+    const btnPauseJob = document.getElementById('btn-pause-job');
+    const btnResumeJob = document.getElementById('btn-resume-job');
+    const btnCancelJob = document.getElementById('btn-cancel-job');
+
+    const stepResults = document.getElementById('step-results');
+    const btnRetryFailed = document.getElementById('btn-retry-failed');
+
+    // Default dates (e.g. 24/09/2026 to 14/10/2026)
+    inputFromDate.value = "2026-09-24";
+    inputToDate.value = "2026-10-14";
+
+    const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    function updateLiveDateDisplay() {
+      const fromVal = inputFromDate.value;
+      const toVal = inputToDate.value;
+      if (!fromVal || !toVal) return;
+
+      const dFrom = new Date(fromVal + "T00:00:00");
+      const dTo = new Date(toVal + "T00:00:00");
+
+      const fromDayName = weekdays[dFrom.getDay()];
+      const toDayName = weekdays[dTo.getDay()];
+
+      const labelFrom = document.getElementById('label-from-day');
+      const labelTo = document.getElementById('label-to-day');
+      if (labelFrom) labelFrom.textContent = fromDayName;
+      if (labelTo) labelTo.textContent = toDayName;
+
+      // Format DD/MM/YYYY
+      const fParts = fromVal.split('-');
+      const tParts = toVal.split('-');
+      const fromStr = `${fParts[2]}/${fParts[1]}/${fParts[0]}`;
+      const toStr = `${tParts[2]}/${tParts[1]}/${tParts[0]}`;
+
+      const pillFrom = document.getElementById('pill-from-text');
+      const pillTo = document.getElementById('pill-to-text');
+      if (pillFrom) pillFrom.textContent = fromStr;
+      if (pillTo) pillTo.textContent = toStr;
+
+      const diffTime = dTo.getTime() - dFrom.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 3600 * 24)) + 1;
+      const countEl = document.getElementById('pill-days-count');
+      if (countEl) {
+        if (diffDays >= 1) {
+          countEl.textContent = `${diffDays} Day${diffDays > 1 ? 's' : ''}`;
+          countEl.className = "ml-1.5 px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-bold text-[11px]";
+        } else {
+          countEl.textContent = `Invalid (From > To)`;
+          countEl.className = "ml-1.5 px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-bold text-[11px]";
+        }
+      }
+    }
+
+    function applyDatePreset(preset) {
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const fmt = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+      if (preset === 'spec_demo') {
+        inputFromDate.value = "2026-09-24";
+        inputToDate.value = "2026-10-14";
+      } else if (preset === 'today') {
+        inputFromDate.value = fmt(now);
+        inputToDate.value = fmt(now);
+      } else if (preset === 'last7') {
+        const past = new Date();
+        past.setDate(now.getDate() - 6);
+        inputFromDate.value = fmt(past);
+        inputToDate.value = fmt(now);
+      } else if (preset === 'last14') {
+        const past = new Date();
+        past.setDate(now.getDate() - 13);
+        inputFromDate.value = fmt(past);
+        inputToDate.value = fmt(now);
+      } else if (preset === 'this_month') {
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        inputFromDate.value = fmt(firstDay);
+        inputToDate.value = fmt(now);
+      }
+      updateLiveDateDisplay();
+    }
+
+    async function loadDemoSurvey() {
+      try {
+        const resp = await fetch('/api/sample-files/sample_field_survey.xlsx');
+        if (!resp.ok) throw new Error("Sample file not found on server");
+        const blob = await resp.blob();
+        const demoFile = new File([blob], "sample_field_survey.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        handleFileUpload(demoFile);
+      } catch (err) {
+        alert("Failed to load demo survey: " + err.message);
+      }
+    }
+
+    inputFromDate.addEventListener('input', updateLiveDateDisplay);
+    inputToDate.addEventListener('input', updateLiveDateDisplay);
+    updateLiveDateDisplay();
+
+    // Dropzone Events
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-sky-500', 'bg-sky-500/5'); });
+    dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('border-sky-500', 'bg-sky-500/5'); });
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-sky-500', 'bg-sky-500/5');
+      if (e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) handleFileUpload(e.target.files[0]);
+    });
+
+    // Upload Handler
+    async function handleFileUpload(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        dropzone.innerHTML = `<div class="py-6 flex flex-col items-center gap-2"><i data-lucide="loader" class="w-8 h-8 text-sky-400 animate-spin"></i><p class="text-xs text-slate-300">Parsing and validating spreadsheet...</p></div>`;
+        lucide.createIcons();
+
+        const resp = await fetch('/api/upload', { method: 'POST', body: formData });
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.detail || "Upload failed");
+        }
+        const data = await resp.json();
+        currentUploadId = data.upload_id;
+        datasetItems = data.preview_items;
+
+        populateColumnSelectors(data.headers, data.detected_columns);
+        renderValidationSummary(data.filename, data.total_rows, data.summary);
+        renderPreviewTable(data.preview_items);
+
+        datasetConfig.classList.remove('hidden');
+        stepDateConfig.classList.remove('hidden');
+
+        // Restore dropzone text
+        dropzone.innerHTML = `<div class="py-3 flex flex-col items-center gap-1.5"><i data-lucide="check-circle" class="w-6 h-6 text-emerald-400"></i><p class="text-xs text-emerald-400 font-semibold">${data.filename} uploaded successfully</p><p class="text-[11px] text-slate-400">Click to upload a different spreadsheet</p></div>`;
+        lucide.createIcons();
+
+        // Update KPIs
+        document.getElementById('kpi-total').textContent = data.total_rows;
+        document.getElementById('kpi-ready').textContent = data.summary.valid;
+        document.getElementById('kpi-remaining').textContent = data.summary.valid;
+
+      } catch (err) {
+        alert("Upload error: " + err.message);
+        location.reload();
+      }
+    }
+
+    function populateColumnSelectors(headers, detected) {
+      colUrl.innerHTML = '';
+      colId.innerHTML = '<option value="">-- Auto-generate IDs --</option>';
+      colDate.innerHTML = '<option value="">-- None (use date range) --</option>';
+
+      headers.forEach((h, idx) => {
+        const optU = new Option(`Col ${idx+1}: ${h}`, idx, false, idx === detected.url_col);
+        colUrl.add(optU);
+
+        const optI = new Option(`Col ${idx+1}: ${h}`, idx, false, idx === detected.id_col);
+        colId.add(optI);
+
+        const optD = new Option(`Col ${idx+1}: ${h}`, idx, false, idx === detected.date_col);
+        colDate.add(optD);
+      });
+    }
+
+    function renderValidationSummary(fname, total, summary) {
+      document.getElementById('val-filename').textContent = fname;
+      document.getElementById('val-rows').textContent = total;
+      document.getElementById('val-valid').textContent = summary.valid;
+      document.getElementById('val-duplicates').textContent = summary.duplicates;
+      document.getElementById('val-invalid').textContent = summary.invalid;
+    }
+
+    function renderPreviewTable(items) {
+      const tbody = document.getElementById('preview-tbody');
+      tbody.innerHTML = '';
+      items.forEach(item => {
+        const tr = document.createElement('tr');
+        const badgeColor = item.status === 'ready' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' :
+                           item.status === 'duplicate' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' :
+                           'text-rose-400 bg-rose-500/10 border-rose-500/20';
+
+        tr.innerHTML = `
+          <td class="px-4 py-2 font-mono text-[11px]">${item.row_id}</td>
+          <td class="px-4 py-2 font-semibold text-white">${item.image_id}</td>
+          <td class="px-4 py-2 truncate max-w-xs text-slate-400 font-mono text-[11px]">${item.original_url}</td>
+          <td class="px-4 py-2">
+            <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold border ${badgeColor}">
+              ${item.status.toUpperCase()}
+            </span>
+          </td>
+          <td class="px-4 py-2">
+            <button onclick="previewSingleRow(${item.row_id})" class="px-2.5 py-1 rounded bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/20 text-[11px] font-medium transition">
+              Preview Stamp
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    btnRevalidate.addEventListener('click', async () => {
+      const payload = {
+        upload_id: currentUploadId,
+        url_col: parseInt(colUrl.value),
+        id_col: colId.value !== "" ? parseInt(colId.value) : null,
+        date_col: colDate.value !== "" ? parseInt(colDate.value) : null
+      };
+
+      const resp = await fetch('/api/configure-columns', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        renderValidationSummary(document.getElementById('val-filename').textContent, data.summary.total, data.summary);
+        renderPreviewTable(data.preview_items);
+      }
+    });
+
+    // Date Sequence Preview
+    btnPreviewDates.addEventListener('click', async () => {
+      if (!currentUploadId) return;
+
+      const payload = {
+        upload_id: currentUploadId,
+        start_date: inputFromDate.value,
+        end_date: inputToDate.value,
+        mode: selectMode.value,
+        overflow_policy: selectOverflow.value
+      };
+
+      try {
+        btnPreviewDates.disabled = true;
+        btnPreviewDates.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Calculating...`;
+        lucide.createIcons();
+
+        const resp = await fetch('/api/date-preview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.detail);
+        }
+
+        const data = await resp.json();
+        document.getElementById('stat-days').textContent = data.statistics.unique_dates_assigned;
+        document.getElementById('stat-unique').textContent = data.statistics.unique_dates_assigned;
+        document.getElementById('stat-avg').textContent = data.statistics.avg_per_date;
+        document.getElementById('stat-minmax').textContent = `${data.statistics.min_per_date} - ${data.statistics.max_per_date}`;
+
+        const seqTbody = document.getElementById('seq-tbody');
+        seqTbody.innerHTML = '';
+        data.preview_sequence.forEach(s => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="px-4 py-2 font-mono text-[11px]">${s.row_id}</td>
+            <td class="px-4 py-2 font-semibold text-white">${s.image_id}</td>
+            <td class="px-4 py-2 text-sky-400 font-bold">${s.assigned_date}</td>
+            <td class="px-4 py-2 text-slate-200 font-semibold">${s.assigned_weekday}</td>
+            <td class="px-4 py-2 text-[10px] uppercase text-slate-400">${s.mode_applied}</td>
+          `;
+          seqTbody.appendChild(tr);
+        });
+
+        datePreviewBox.classList.remove('hidden');
+
+        // Automatically trigger sample preview for row 1
+        previewSingleRow(1);
+
+      } catch (e) {
+        alert("Date preview error: " + e.message);
+      } finally {
+        btnPreviewDates.disabled = false;
+        btnPreviewDates.innerHTML = `<i data-lucide="eye" class="w-4 h-4"></i> Preview Date Sequence`;
+        lucide.createIcons();
+      }
+    });
+
+    // Single Stamp Preview
+    async function previewSingleRow(rowId) {
+      if (!currentUploadId) return;
+
+      stepSamplePreview.classList.remove('hidden');
+      stepSamplePreview.scrollIntoView({ behavior: 'smooth' });
+
+      document.getElementById('preview-img-raw').src = '';
+      document.getElementById('preview-img-edited').src = '';
+      document.getElementById('sample-verify-msg').textContent = `Fetching and inspecting Row ${rowId}...`;
+
+      const payload = {
+        upload_id: currentUploadId,
+        row_id: rowId,
+        target_date: inputFromDate.value,
+        clean_level: document.getElementById('chk-deep-clean').checked ? 'deep_clean' : 'standard'
+      };
+
+      try {
+        const resp = await fetch('/api/preview-stamp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.detail);
+        }
+
+        const data = await resp.json();
+        document.getElementById('preview-img-raw').src = data.raw_image_url;
+        document.getElementById('preview-img-edited').src = data.edited_image_url;
+        document.getElementById('sample-verify-msg').textContent = `Verified: ${data.assigned_weekday}, ${data.assigned_date} (${data.original_time}). Layout: ${data.detected_layout}`;
+
+      } catch (e) {
+        document.getElementById('sample-verify-msg').textContent = "Preview error: " + e.message;
+      }
+    }
+
+    // Start Full Batch
+    btnProceedToBatch.addEventListener('click', async () => {
+      if (!confirm("Commence bulk processing for all survey images with the selected date range?")) return;
+
+      const payload = {
+        upload_id: currentUploadId,
+        start_date: inputFromDate.value,
+        end_date: inputToDate.value,
+        mode: selectMode.value,
+        overflow_policy: selectOverflow.value,
+        naming_rule: 'id_date',
+        preserve_time: document.getElementById('chk-preserve-time').checked,
+        clean_level: document.getElementById('chk-deep-clean').checked ? 'deep_clean' : 'standard'
+      };
+
+      try {
+        btnProceedToBatch.disabled = true;
+        const resp = await fetch('/api/start-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.detail);
+        }
+
+        const data = await resp.json();
+        currentJobId = data.job_id;
+
+        stepProcessing.classList.remove('hidden');
+        stepResults.classList.remove('hidden');
+        stepProcessing.scrollIntoView({ behavior: 'smooth' });
+
+        // Start live polling
+        if (activePollInterval) clearInterval(activePollInterval);
+        activePollInterval = setInterval(pollJobStatus, 800);
+
+      } catch (e) {
+        alert("Batch start error: " + e.message);
+        btnProceedToBatch.disabled = false;
+      }
+    });
+
+    // Live Polling
+    async function pollJobStatus() {
+      if (!currentJobId) return;
+
+      try {
+        const resp = await fetch(`/api/job/${currentJobId}/status`);
+        if (!resp.ok) return;
+
+        const data = await resp.json();
+        const p = data.progress;
+
+        // Update KPIs
+        document.getElementById('kpi-total').textContent = p.total;
+        document.getElementById('kpi-processing').textContent = p.state === 'processing' || p.state === 'downloading' ? (p.total - p.processed) : 0;
+        document.getElementById('kpi-completed').textContent = p.succeeded;
+        document.getElementById('kpi-failed').textContent = p.failed;
+        document.getElementById('kpi-remaining').textContent = p.remaining;
+
+        // Progress bar
+        document.getElementById('batch-current-num').textContent = p.processed;
+        document.getElementById('batch-total-num').textContent = p.total;
+        document.getElementById('batch-pct').textContent = `${p.percent}%`;
+        document.getElementById('batch-progress-bar').style.width = `${p.percent}%`;
+        document.getElementById('batch-current-file').textContent = p.current_filename || p.state;
+        document.getElementById('batch-elapsed').textContent = `${p.elapsed_sec}s`;
+        document.getElementById('batch-eta').textContent = p.eta_sec > 0 ? `${p.eta_sec}s remaining` : 'Completing...';
+
+        // Render results table
+        renderResultsTable(data.items);
+
+        if (p.state === 'completed' || p.state === 'cancelled') {
+          clearInterval(activePollInterval);
+          btnPauseJob.classList.add('hidden');
+          btnResumeJob.classList.add('hidden');
+          btnCancelJob.classList.add('hidden');
+          document.getElementById('batch-eta').textContent = p.state.toUpperCase();
+        }
+
+      } catch (e) {
+        console.error("Polling error", e);
+      }
+    }
+
+    // Universal Robust File Download Handler (Native Save Dialog in PyWebView & Direct in Browsers)
+    async function downloadBlobFile(url, fallbackFilename, buttonEl = null) {
+      if (!url || url === '#' || url.endsWith('/#')) {
+        alert("Download is not ready yet. Please wait for processing to finish.");
+        return;
+      }
+
+      let originalHtml = '';
+      if (buttonEl) {
+        originalHtml = buttonEl.innerHTML;
+        buttonEl.disabled = true;
+        buttonEl.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Downloading...`;
+        if (window.lucide) lucide.createIcons();
+      }
+
+      try {
+        // Strategy 1: Desktop PyWebView Native Bridge (Windows Save File Dialog)
+        if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.save_file === 'function') {
+          try {
+            const res = await window.pywebview.api.save_file(url, fallbackFilename || 'downloaded_file');
+            if (res && res.success) {
+              return;
+            } else if (res && res.cancelled) {
+              return;
+            }
+          } catch (bridgeErr) {
+            console.warn("PyWebView save_file bridge call failed, falling back to direct download:", bridgeErr);
+          }
+        }
+
+        // Strategy 2: Direct browser download trigger
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fallbackFilename || '');
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => { if (link.parentNode) link.parentNode.removeChild(link); }, 2000);
+
+      } catch (err) {
+        console.error("Direct download failed, opening in new tab:", err);
+        window.open(url, '_blank');
+      } finally {
+        if (buttonEl && originalHtml) {
+          buttonEl.disabled = false;
+          buttonEl.innerHTML = originalHtml;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
+
+    // Modern Floating Toast Notification
+    function showToast(message, isError = false) {
+      let toast = document.getElementById('app-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'app-toast';
+        document.body.appendChild(toast);
+      }
+      toast.className = `fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-2xl transition-all duration-300 font-medium text-xs max-w-md ${
+        isError ? 'bg-rose-950 text-rose-200 border border-rose-700/60' : 'bg-emerald-950 text-emerald-200 border border-emerald-700/60'
+      }`;
+      toast.innerHTML = `<i data-lucide="${isError ? 'alert-triangle' : 'check-circle'}" class="w-4 h-4 shrink-0 text-${isError ? 'rose' : 'emerald'}-400"></i> <span class="break-words">${message}</span>`;
+      if (window.lucide) lucide.createIcons();
+      toast.style.display = 'flex';
+      toast.style.opacity = '1';
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => { toast.style.display = 'none'; }, 300);
+      }, 5000);
+    }
+
+    // Direct Save to Windows Downloads Folder
+    async function triggerSaveJobFile(fileType, rowId = null, btn = null) {
+      if (!currentJobId) {
+        alert("No active batch job found. Please start bulk processing first.");
+        return;
+      }
+
+      let origHtml = '';
+      if (btn) {
+        origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Saving...`;
+        if (window.lucide) lucide.createIcons();
+      }
+
+      try {
+        const resp = await fetch(`/api/job/${currentJobId}/save-to-downloads`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ file_type: fileType, row_id: rowId })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+          showToast(`Saved to Downloads: ${data.filename}`);
+        } else {
+          throw new Error(data.detail || data.error || "Failed to save to Downloads");
+        }
+      } catch (err) {
+        console.warn("Direct save failed, attempting browser download:", err);
+        let fallbackUrl = fileType === 'zip' ? `/api/job/${currentJobId}/download-zip` :
+                          fileType === 'excel' ? `/api/job/${currentJobId}/export-excel` :
+                          fileType === 'csv' ? `/api/job/${currentJobId}/export-csv` :
+                          fileType === 'image' ? `/api/job/${currentJobId}/download-image/${rowId}` : '';
+        if (fallbackUrl) {
+          const dlLink = document.createElement('a');
+          dlLink.href = fallbackUrl;
+          dlLink.download = '';
+          document.body.appendChild(dlLink);
+          dlLink.click();
+          setTimeout(() => dlLink.remove(), 2000);
+        } else {
+          showToast(err.message, true);
+        }
+      } finally {
+        if (btn && origHtml) {
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
+
+    // Opens the local job output folder directly in Windows File Explorer
+    async function openOutputFolder() {
+      if (!currentJobId) {
+        alert("No active batch job found. Please start bulk processing first.");
+        return;
+      }
+      try {
+        const resp = await fetch(`/api/job/${currentJobId}/open-folder`, { method: 'POST' });
+        const data = await resp.json();
+        if (data.success) {
+          showToast("Output folder opened in File Explorer");
+        } else {
+          alert("Could not open folder: " + (data.error || "Unknown error"));
+        }
+      } catch (e) {
+        alert("Error opening output folder: " + e.message);
+      }
+    }
+
+    // Opens the web app in the system default browser (Chrome, Edge, etc.)
+    function openInExternalBrowser() {
+      if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.open_external === 'function') {
+        window.pywebview.api.open_external(window.location.href);
+      } else {
+        window.open(window.location.href, '_blank');
+      }
+    }
+
+    // Download Sample Image from Step 3 to Downloads Folder
+    async function downloadCurrentSample() {
+      if (!currentUploadId) {
+        alert("Please preview a sample image first by clicking 'Preview Date Sequence'.");
+        return;
+      }
+      const btn = document.getElementById('btn-download-sample');
+      let origHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Saving...`;
+        if (window.lucide) lucide.createIcons();
+      }
+      try {
+        const resp = await fetch(`/api/preview-image/${currentUploadId}/save-to-downloads`, { method: 'POST' });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+          showToast(`Sample photo saved to Downloads: ${data.filename}`);
+        } else {
+          throw new Error(data.detail || "Failed to save sample image");
+        }
+      } catch (e) {
+        showToast(e.message, true);
+      } finally {
+        if (btn && origHtml) {
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
+
+    // Download Single Job Item from Table to Downloads Folder
+    function downloadJobItem(rowId, imageId, btn) {
+      triggerSaveJobFile('image', rowId, btn);
+    }
+
+    // Modal inspection download state
+    let modalCurrentRowId = null;
+    let modalCurrentImageId = null;
+
+    function downloadModalPhoto() {
+      if (!modalCurrentRowId || !currentJobId) {
+        alert("No image selected to download.");
+        return;
+      }
+      triggerSaveJobFile('image', modalCurrentRowId, document.getElementById('modal-btn-download'));
+    }
+
+    // Step 5 Export Buttons Event Listeners
+    document.getElementById('btn-dl-zip').addEventListener('click', function() {
+      triggerSaveJobFile('zip', null, this);
+    });
+
+    document.getElementById('btn-dl-excel').addEventListener('click', function() {
+      triggerSaveJobFile('excel', null, this);
+    });
+
+    document.getElementById('btn-dl-csv').addEventListener('click', function() {
+      triggerSaveJobFile('csv', null, this);
+    });
+
+    function renderResultsTable(items) {
+      const tbody = document.getElementById('results-tbody');
+      tbody.innerHTML = '';
+
+      items.forEach(item => {
+        const tr = document.createElement('tr');
+        const badgeColor = item.status === 'completed' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' :
+                           item.status === 'needs_review' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' :
+                           item.status === 'failed' ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' :
+                           'text-slate-400 bg-slate-800';
+
+        tr.innerHTML = `
+          <td class="px-4 py-2 font-mono text-[11px]">${item.row_id}</td>
+          <td class="px-4 py-2 font-semibold text-white">${item.image_id}</td>
+          <td class="px-4 py-2 text-sky-400 font-semibold">${item.assigned_weekday}, ${item.assigned_date}</td>
+          <td class="px-4 py-2 text-slate-300 font-mono text-[11px]">${item.original_time || '--'}</td>
+          <td class="px-4 py-2">
+            <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold border ${badgeColor}">
+              ${item.status.toUpperCase()}
+            </span>
+            ${item.error_message ? `<span class="block text-[10px] text-rose-400 mt-0.5 max-w-xs break-words" title="${item.error_message}">${item.error_message}</span>` : ''}
+          </td>
+          <td class="px-4 py-2 flex items-center gap-2">
+            ${item.status === 'completed' ? `
+              <button type="button" onclick="openInspectModal(${item.row_id})" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] transition">
+                Inspect
+              </button>
+              <button type="button" onclick="downloadJobItem(${item.row_id}, '${item.image_id}', this)" class="px-2 py-1 rounded bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer">
+                <i data-lucide="download" class="w-3 h-3"></i> Download
+              </button>
+            ` : ''}
+            ${item.status === 'needs_review' || item.status === 'failed' ? `
+              <button type="button" onclick="openManualEditModal(${item.row_id}, '${item.assigned_date}', '${item.original_time}')" class="px-2 py-1 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-[11px] transition">
+                Review & Edit
+              </button>
+            ` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Batch Controls
+    btnPauseJob.addEventListener('click', async () => {
+      await fetch(`/api/job/${currentJobId}/pause`, { method: 'POST' });
+      btnPauseJob.classList.add('hidden');
+      btnResumeJob.classList.remove('hidden');
+    });
+
+    btnResumeJob.addEventListener('click', async () => {
+      await fetch(`/api/job/${currentJobId}/resume`, { method: 'POST' });
+      btnResumeJob.classList.add('hidden');
+      btnPauseJob.classList.remove('hidden');
+    });
+
+    btnCancelJob.addEventListener('click', async () => {
+      if (confirm("Cancel remaining images in this batch?")) {
+        await fetch(`/api/job/${currentJobId}/cancel`, { method: 'POST' });
+      }
+    });
+
+    btnRetryFailed.addEventListener('click', async () => {
+      const resp = await fetch(`/api/job/${currentJobId}/retry-failed`, { method: 'POST' });
+      const data = await resp.json();
+      alert(data.message);
+      if (activePollInterval) clearInterval(activePollInterval);
+      activePollInterval = setInterval(pollJobStatus, 800);
+    });
+
+    // Modals
+    async function openInspectModal(rowId) {
+      const resp = await fetch(`/api/job/${currentJobId}/status`);
+      const data = await resp.json();
+      const item = data.items.find(i => i.row_id === rowId);
+      if (!item) return;
+
+      modalCurrentRowId = rowId;
+      modalCurrentImageId = item.image_id;
+
+      document.getElementById('modal-inspect-title').textContent = `Inspect: ${item.image_id} (Row ${item.row_id})`;
+      document.getElementById('modal-img-raw').src = item.raw_url;
+      document.getElementById('modal-img-edited').src = item.edited_url;
+      document.getElementById('modal-inspect-date').textContent = `${item.assigned_weekday}, ${item.assigned_date}`;
+      document.getElementById('modal-inspect-time').textContent = item.original_time || "Preserved from source";
+      document.getElementById('modal-inspect-status').textContent = item.status.toUpperCase();
+
+      document.getElementById('modal-inspect').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeInspectModal() {
+      document.getElementById('modal-inspect').classList.add('hidden');
+      modalCurrentRowId = null;
+      modalCurrentImageId = null;
+    }
+
+    function openManualEditModal(rowId, date, time) {
+      document.getElementById('edit-row-id').value = rowId;
+      document.getElementById('edit-target-date').value = date || "24/09/2026";
+      document.getElementById('edit-target-time').value = time || "03:40 PM";
+      document.getElementById('modal-manual-edit').classList.remove('hidden');
+    }
+
+    function closeManualEditModal() {
+      document.getElementById('modal-manual-edit').classList.add('hidden');
+    }
+
+    document.getElementById('btn-save-manual-edit').addEventListener('click', async () => {
+      const rowId = parseInt(document.getElementById('edit-row-id').value);
+      const payload = {
+        job_id: currentJobId,
+        row_id: rowId,
+        target_date: document.getElementById('edit-target-date').value,
+        target_time: document.getElementById('edit-target-time').value,
+        target_tz: document.getElementById('edit-target-tz').value,
+        layout_override: document.getElementById('edit-layout-override').value
+      };
+
+      const resp = await fetch('/api/job/manual-edit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (resp.ok) {
+        closeManualEditModal();
+        pollJobStatus();
+      }
+    });
+  </script>
+</body>
+</html>

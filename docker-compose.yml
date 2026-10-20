@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  gps-stamp-changer:
+    build: .
+    container_name: gps_stamp_date_changer_pro
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./jobs:/app/jobs
+      - ./samples:/app/samples
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
