@@ -4,28 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GPS Stamp Date Changer Pro - Enterprise Field Photo Date Suite</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Local Offline-First Tailwind CSS (Zero Internet Dependency) -->
+  <script src="/static/vendor/tailwind.js"></script>
   <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
+    if (window.tailwind) {
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: '#f0f9ff',
+                100: '#e0f2fe',
+                500: '#0ea5e9',
+                600: '#0284c7',
+                700: '#0369a1',
+              }
             }
           }
         }
-      }
+      };
     }
   </script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Local Offline-First Lucide Icons -->
+  <script src="/static/vendor/lucide.js"></script>
   <style>
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
@@ -138,12 +140,18 @@
             <i data-lucide="upload-cloud" class="w-6 h-6"></i>
           </div>
           <div>
-            <p class="text-sm font-semibold text-white">Click or drag & drop survey spreadsheet here</p>
-            <p class="text-xs text-slate-400 mt-1">Accepts Excel spreadsheets or CSV files containing photo links or Google Drive URLs</p>
+            <p class="text-sm font-semibold text-white">Click or drag & drop survey spreadsheet or photos here</p>
+            <p class="text-xs text-slate-400 mt-1">Accepts Excel/CSV spreadsheets or you can select/drag photos directly (100% offline)</p>
           </div>
-          <button type="button" id="btn-load-demo" onclick="event.stopPropagation(); loadDemoSurvey();" class="mt-1 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 transition shadow-lg shadow-indigo-500/10">
-            <i data-lucide="play-circle" class="w-3.5 h-3.5 text-indigo-400"></i> Try Demo Survey Spreadsheet (5 Field Photos)
-          </button>
+          <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+            <button type="button" id="btn-select-photos" onclick="event.stopPropagation(); document.getElementById('photos-input').click();" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition shadow-lg shadow-emerald-500/10 cursor-pointer">
+              <i data-lucide="image-plus" class="w-3.5 h-3.5 text-emerald-400"></i> Or Select Local Photos Directly (100% Offline No Spreadsheet Needed)
+            </button>
+            <button type="button" id="btn-load-demo" onclick="event.stopPropagation(); loadDemoSurvey();" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 transition shadow-lg shadow-indigo-500/10 cursor-pointer">
+              <i data-lucide="play-circle" class="w-3.5 h-3.5 text-indigo-400"></i> Try Demo Survey (5 Field Photos)
+            </button>
+          </div>
+          <input type="file" id="photos-input" class="hidden" multiple accept="image/jpeg,image/png,image/webp">
         </div>
       </div>
 
@@ -689,14 +697,70 @@
     dropzone.addEventListener('click', () => fileInput.click());
     dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-sky-500', 'bg-sky-500/5'); });
     dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('border-sky-500', 'bg-sky-500/5'); });
+    const photosInput = document.getElementById('photos-input');
+    photosInput.addEventListener('change', (e) => {
+      if (e.target.files.length) handlePhotosUpload(e.target.files);
+    });
+
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropzone.classList.remove('border-sky-500', 'bg-sky-500/5');
-      if (e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files[0]);
+      if (e.dataTransfer.files.length) {
+        const first = e.dataTransfer.files[0];
+        if (first.name.match(/\.(xlsx|xls|csv)$/i)) {
+          handleFileUpload(first);
+        } else {
+          handlePhotosUpload(e.dataTransfer.files);
+        }
+      }
     });
     fileInput.addEventListener('change', (e) => {
       if (e.target.files.length) handleFileUpload(e.target.files[0]);
     });
+
+    // Offline Direct Photos Upload Handler
+    async function handlePhotosUpload(fileList) {
+      const formData = new FormData();
+      let count = 0;
+      for (let i = 0; i < fileList.length; i++) {
+        const f = fileList[i];
+        if (f.type.startsWith('image/') || f.name.match(/\.(jpg|jpeg|png|webp)$/i)) {
+          formData.append('files', f);
+          count++;
+        }
+      }
+      if (count === 0) {
+        alert("Please select valid image files (.jpg, .jpeg, .png).");
+        return;
+      }
+
+      try {
+        dropzone.innerHTML = `<div class="py-6 flex flex-col items-center gap-2"><i data-lucide="loader" class="w-8 h-8 text-emerald-400 animate-spin"></i><p class="text-xs text-slate-300">Loading ${count} local photos into offline workspace...</p></div>`;
+        if (window.lucide) lucide.createIcons();
+
+        const resp = await fetch('/api/upload-photos', { method: 'POST', body: formData });
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.detail || "Upload failed");
+        }
+        const data = await resp.json();
+        currentUploadId = data.upload_id;
+        datasetItems = data.preview_items;
+
+        populateColumnSelectors(data.headers, data.detected_columns);
+        renderValidationSummary(data.filename, data.total_rows, data.summary);
+        renderPreviewTable(data.preview_items);
+
+        datasetConfig.classList.remove('hidden');
+        stepDateConfig.classList.remove('hidden');
+
+        dropzone.innerHTML = `<div class="py-3 flex flex-col items-center gap-1.5"><i data-lucide="check-circle" class="w-6 h-6 text-emerald-400"></i><p class="text-xs text-emerald-400 font-semibold">${data.filename} loaded (${data.total_rows} photos ready for offline processing)</p><p class="text-[11px] text-slate-400">Click to select different photos or spreadsheet</p></div>`;
+        if (window.lucide) lucide.createIcons();
+      } catch (err) {
+        alert("Failed to load photos: " + err.message);
+        location.reload();
+      }
+    }
 
     // Upload Handler
     async function handleFileUpload(file) {

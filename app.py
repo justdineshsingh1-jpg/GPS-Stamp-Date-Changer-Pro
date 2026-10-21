@@ -22,7 +22,7 @@ from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from importer import read_tabular_file, detect_columns, inspect_and_validate_dataset
+from importer import read_tabular_file, detect_columns, inspect_and_validate_dataset, create_dataset_from_local_photo_records
 from date_engine import assign_dates, get_distribution_statistics, parse_date_string
 from engine import process_gps_image
 from batch_processor import BatchJob, run_batch_pipeline
@@ -136,6 +136,64 @@ async def upload_dataset(file: UploadFile = File(...)):
             "invalid": validation_result["invalid_count"]
         },
         "preview_items": validation_result["items"][:10]
+    }
+
+
+@app.post("/api/upload-photos")
+async def upload_photos_direct(files: List[UploadFile] = File(...)):
+    """
+    Offline-first direct photo import: allows users to select photos directly
+    from their computer/camera/SD card without needing a spreadsheet or internet connection.
+    """
+    if not files:
+        raise HTTPException(status_code=400, detail="No photo files received.")
+
+    upload_id = str(uuid.uuid4())
+    upload_folder = os.path.join(UPLOADS_DIR, upload_id, "direct_photos")
+    os.makedirs(upload_folder, exist_ok=True)
+
+    photo_records = []
+    for f in files:
+        ext = os.path.splitext(f.filename)[1].lower()
+        if ext in ('.jpg', '.jpeg', '.png', '.webp'):
+            safe_fname = os.path.basename(f.filename)
+            save_path = os.path.join(upload_folder, safe_fname)
+            with open(save_path, "wb") as out_f:
+                content = await f.read()
+                out_f.write(content)
+            photo_records.append({"filename": safe_fname, "path": save_path})
+
+    if not photo_records:
+        raise HTTPException(status_code=400, detail="No valid JPG or PNG images found in selection.")
+
+    ds = create_dataset_from_local_photo_records(photo_records)
+    v_res = ds["validation_result"]
+
+    UPLOADS_DATA[upload_id] = {
+        "upload_id": upload_id,
+        "filename": f"{len(photo_records)} Local Photos",
+        "file_path": upload_folder,
+        "headers": ds["headers"],
+        "rows": ds["rows"],
+        "url_col": ds["url_col"],
+        "id_col": ds["id_col"],
+        "date_col": ds["date_col"],
+        "validation_result": v_res
+    }
+
+    return {
+        "upload_id": upload_id,
+        "filename": f"{len(photo_records)} Local Photos",
+        "total_rows": len(photo_records),
+        "headers": ds["headers"],
+        "detected_columns": {"url_col": ds["url_col"], "id_col": ds["id_col"], "date_col": ds["date_col"]},
+        "summary": {
+            "total": v_res["total_rows"],
+            "valid": v_res["valid_count"],
+            "duplicates": v_res["duplicate_count"],
+            "invalid": v_res["invalid_count"]
+        },
+        "preview_items": v_res["items"][:10]
     }
 
 

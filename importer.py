@@ -352,3 +352,50 @@ def inspect_and_validate_dataset(
         "invalid_count": invalid_count,
         "items": validated_items
     }
+
+
+def create_dataset_from_local_photo_records(photo_records: List[Dict[str, str]]) -> Dict[str, Any]:
+    """
+    Creates an offline-ready survey dataset directly from local photo files
+    without requiring any spreadsheet.
+    """
+    validated_items = []
+    headers = ["Image ID", "Photo Filename", "File Path", "Status"]
+    rows = []
+
+    for idx, rec in enumerate(photo_records, start=1):
+        filename = rec.get("filename", f"photo_{idx}.jpg")
+        local_path = rec.get("path", "")
+        img_id = os.path.splitext(filename)[0] or f"IMG_{idx:04d}"
+
+        validated_items.append({
+            "row_id": idx,
+            "image_id": img_id,
+            "original_url": local_path,
+            "normalized_url": local_path,
+            "custom_date": "",
+            "status": "ready",
+            "is_duplicate": False,
+            "duplicate_of": None,
+            "error_message": "",
+            "raw_row": [img_id, filename, local_path, "Ready"]
+        })
+        rows.append([img_id, filename, local_path, "Ready"])
+
+    validation_result = {
+        "total_rows": len(validated_items),
+        "valid_count": len(validated_items),
+        "duplicate_count": 0,
+        "invalid_count": 0,
+        "items": validated_items
+    }
+
+    return {
+        "headers": headers,
+        "rows": rows,
+        "url_col": 2, # File Path
+        "id_col": 0,  # Image ID
+        "date_col": None,
+        "validation_result": validation_result
+    }
+
